@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bolão Brasil 2027</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+body { background: linear-gradient(135deg, #009739, #009739 30%, #002776 70%, #002776); min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+.header { background: linear-gradient(135deg, #FFCC29, #FFB300); width: 100%; padding: 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,.3); }
+.header h1 { color: #002776; font-size: 2.2em; text-shadow: 1px 1px 2px rgba(255,255,255,.3); }
+.header h1 span { color: #009739; }
+.header p { color: #002776; font-weight: bold; margin-top: 5px; }
+.container { max-width: 900px; width: 100%; padding: 20px; flex: 1; }
+.card { background: rgba(255,255,255,.95); border-radius: 15px; padding: 25px; margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0,0,0,.2); }
+.card h2 { color: #002776; border-bottom: 3px solid #FFCC29; padding-bottom: 10px; margin-bottom: 20px; font-size: 1.4em; }
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; font-weight: bold; color: #333; margin-bottom: 5px; font-size: .9em; }
+.form-group input, .form-group select { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em; transition: border-color .3s; }
+.form-group input:focus, .form-group select:focus { border-color: #009739; outline: none; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.btn { padding: 12px 30px; border: none; border-radius: 8px; font-size: 1em; font-weight: bold; cursor: pointer; transition: all .3s; text-transform: uppercase; }
+.btn-green { background: linear-gradient(135deg, #009739, #00a844); color: #fff; }
+.btn-green:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,151,57,.4); }
+.btn-blue { background: linear-gradient(135deg, #002776, #0039a6); color: #fff; }
+.btn-blue:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,39,118,.4); }
+.btn-yellow { background: linear-gradient(135deg, #FFCC29, #FFB300); color: #002776; }
+.btn-yellow:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255,204,41,.4); }
+.btn-red { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; }
+.btn-sm { padding: 8px 16px; font-size: .85em; }
+.btn:disabled { opacity: .5; cursor: not-allowed; transform: none !important; }
+.pix-area { text-align: center; padding: 20px; background: #f8f9fa; border-radius: 10px; margin: 15px 0; }
+.pix-area img { max-width: 200px; }
+.pix-area .pix-value { font-size: 2em; color: #009739; font-weight: bold; margin: 10px 0; }
+.pix-area .pix-info { color: #666; font-size: .9em; margin: 5px 0; }
+.pix-key { background: #e8f5e9; padding: 10px; border-radius: 8px; font-family: monospace; font-size: 1.1em; color: #002776; margin: 10px 0; word-break: break-all; }
+.qr-container { display: flex; justify-content: center; margin: 15px 0; }
+#qrcode { padding: 10px; background: #fff; border-radius: 8px; display: inline-block; }
+.toast { position: fixed; top: 20px; right: 20px; z-index: 9999; padding: 15px 25px; border-radius: 8px; color: #fff; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,.3); transform: translateX(120%); transition: transform .4s; max-width: 350px; }
+.toast.show { transform: translateX(0); }
+.toast.success { background: linear-gradient(135deg, #009739, #00a844); }
+.toast.error { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+.toast.info { background: linear-gradient(135deg, #002776, #0039a6); }
+.toast.warning { background: linear-gradient(135deg, #FFCC29, #FFB300); color: #002776; }
+.tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+.tab-btn { padding: 10px 20px; border: 2px solid #ddd; background: #f8f9fa; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all .3s; color: #666; }
+.tab-btn.active { border-color: #009739; background: #009739; color: #fff; }
+.tab-btn:hover:not(.active) { border-color: #009739; color: #009739; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.table-responsive { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+table th, table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #eee; font-size: .9em; }
+table th { background: #002776; color: #fff; position: sticky; top: 0; }
+table tr:hover { background: #f5f5f5; }
+table .status-pending { color: #e67e22; font-weight: bold; }
+table .status-paid { color: #009739; font-weight: bold; }
+table .status-confirmed { color: #002776; font-weight: bold; }
+table .status-rejected { color: #e74c3c; font-weight: bold; }
+.admin-login { max-width: 400px; margin: 40px auto; text-align: center; }
+.admin-login input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1.1em; margin: 10px 0; text-align: center; }
+.admin-login .lock-icon { font-size: 3em; color: #002776; margin-bottom: 15px; }
+.admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.admin-header h2 { margin: 0; }
+.badge { display: inline-block; background: #e74c3c; color: #fff; border-radius: 50%; width: 22px; height: 22px; text-align: center; font-size: .75em; line-height: 22px; margin-left: 5px; }
+.notification-badge { position: fixed; bottom: 20px; right: 20px; background: linear-gradient(135deg, #FFCC29, #FFB300); color: #002776; border: none; border-radius: 50%; width: 60px; height: 60px; font-size: 1.5em; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,.3); display: none; align-items: center; justify-content: center; z-index: 100; }
+.notification-badge.show { display: flex; }
+.notification-badge:hover { transform: scale(1.1); }
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.6); z-index: 1000; justify-content: center; align-items: center; }
+.modal.show { display: flex; }
+.modal-content { background: #fff; border-radius: 15px; padding: 30px; max-width: 450px; width: 90%; max-height: 80vh; overflow-y: auto; }
+.modal-content h3 { color: #002776; margin-bottom: 15px; border-bottom: 2px solid #FFCC29; padding-bottom: 10px; }
+.modal-close { float: right; font-size: 1.5em; cursor: pointer; color: #999; }
+.modal-close:hover { color: #333; }
+.filter-bar { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+.filter-bar select, .filter-bar input { padding: 8px; border: 2px solid #ddd; border-radius: 6px; font-size: .9em; }
+.filter-bar input { flex: 1; min-width: 150px; }
+.jogo-card { background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-radius: 10px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #FFCC29; }
+.jogo-card .times { display: flex; align-items: center; justify-content: center; gap: 15px; font-weight: bold; font-size: 1.1em; color: #002776; }
+.jogo-card .times .vs { color: #999; font-size: .9em; }
+.placar-input { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
+.placar-input input { width: 60px; text-align: center; padding: 8px; border: 2px solid #ddd; border-radius: 6px; font-size: 1.1em; font-weight: bold; }
+.placar-input span { font-weight: bold; color: #666; }
+.selected-match { background: #e8f5e9; border-left-color: #009739; }
+@media (max-width: 600px) {
+  .form-row { grid-template-columns: 1fr; }
+  .header h1 { font-size: 1.5em; }
+  .container { padding: 10px; }
+  .card { padding: 15px; }
+  table th, table td { padding: 6px 8px; font-size: .8em; }
+  .tabs { flex-direction: column; }
+}
+.small-text { font-size: .8em; color: #666; }
+.mt-10 { margin-top: 10px; }
+.mb-10 { margin-bottom: 10px; }
+.text-center { text-align: center; }
+.copy-btn { background: #002776; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: .85em; }
+.footer { text-align: center; color: rgba(255,255,255,.8); padding: 15px; width: 100%; font-size: .85em; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>&#9917; <span>BOLÃO</span> BRASIL 2027</h1>
+  <p>Jogo do Palpite - Brasil na Copa do Mundo</p>
+</div>
+
+<div class="container">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('usuario')">&#128100; Área do Usuário</button>
+    <button class="tab-btn" onclick="showTab('admin')">&#128274; Administrador</button>
+    <button class="tab-btn" onclick="showTab('regulamento')">&#128214; Regulamento</button>
+  </div>
+
+  <!-- ========== TAB USUÁRIO ========== -->
+  <div id="tab-usuario" class="tab-content active">
+    <div class="card">
+      <h2>&#128220; Cadastro do Palpite</h2>
+      <form id="formPalpite">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nome Completo *</label>
+            <input type="text" id="nomeUser" required placeholder="Seu nome completo">
+          </div>
+          <div class="form-group">
+            <label>Telefone / WhatsApp *</label>
+            <input type="tel" id="telUser" required placeholder="(91) 9xxxx-xxxx">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Selecione o Jogo *</label>
+          <select id="jogoSelect" onchange="onSelectJogo()">
+            <option value="">-- Selecione --</option>
+          </select>
+        </div>
+
+        <div id="placarArea" style="display:none;">
+          <div class="jogo-card" id="jogoInfo">
+            <div class="times">
+              <span id="time1">Time A</span>
+              <span class="vs">VS</span>
+              <span id="time2">Time B</span>
+            </div>
+          </div>
+          <div class="placar-input">
+            <input type="number" id="gols1" min="0" max="20" placeholder="0" oninput="verificarLimitePalpite()">
+            <span>X</span>
+            <input type="number" id="gols2" min="0" max="20" placeholder="0" oninput="verificarLimitePalpite()">
+          </div>
+          <p class="text-center small-text mt-10">Digite o placar que você acredita</p>
+          <div id="limiteAviso" style="display:none;text-align:center;margin-top:8px;padding:8px;border-radius:6px;font-weight:bold;"></div>
+        </div>
+
+        <div id="pixArea" style="display:none;">
+          <hr style="margin:20px 0;">
+          <h3 style="color:#002776;text-align:center;">&#128179; Pagamento via PIX</h3>
+          <p class="text-center small-text">Valor: R$ 20,00 por palpite</p>
+
+          <div class="pix-area">
+            <div class="pix-value">R$ 20,00</div>
+            <div class="pix-info">Escaneie o QR Code ou copie a chave PIX</div>
+            <div class="pix-key" id="pixKeyDisplay">91985446070</div>
+            <button class="copy-btn" onclick="copiarChavePix()">&#128203; Copiar Chave PIX</button>
+            <div class="qr-container">
+              <div id="qrcode"></div>
+            </div>
+            <div class="pix-info" style="margin-top:10px;">
+              <strong>Beneficiário:</strong> Deigo Dia<br>
+              <strong>Banco:</strong> PagSeguro<br>
+              <strong>Cidade:</strong> Santa Barbara - PA
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Comprovante (opcional - envie o comprovante para confirmar)</label>
+            <input type="text" id="comprovante" placeholder="Nº do comprovante ou código">
+          </div>
+
+          <div class="form-group" style="text-align:center;">
+            <label style="display:inline;font-weight:normal;">
+              <input type="checkbox" id="confirmPag" onchange="toggleSubmit()">
+              Declaro que realizei o pagamento de <strong>R$ 20,00</strong> via PIX
+            </label>
+          </div>
+
+          <div style="text-align:center;">
+            <button type="submit" id="btnSubmit" class="btn btn-green" disabled>&#10004; Enviar Palpite</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>&#128203; Meus Palpites</h2>
+      <div id="meusPalpites">
+        <p class="text-center small-text">Nenhum palpite cadastrado ainda.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== TAB REGULAMENTO ========== -->
+  <div id="tab-regulamento" class="tab-content">
+    <div class="card">
+      <h2>&#128214; Regulamento do Bolão Brasil 2027</h2>
+
+      <div style="background:linear-gradient(135deg,#f8f9fa,#fff);padding:20px;border-radius:10px;line-height:1.8;">
+
+        <h3 style="color:#009739;margin-top:15px;">1. DO OBJETIVO</h3>
+        <p>O <strong>Bolão Brasil 2027</strong> é um jogo de palpites sobre os jogos da Seleção Brasileira, onde os participantes tentam acertar o placar exato das partidas para concorrer a prêmios.</p>
+
+        <h3 style="color:#009739;margin-top:15px;">2. DA PARTICIPAÇÃO</h3>
+        <p>2.1. Podem participar pessoas físicas maiores de 18 anos ou devidamente autorizadas pelos responsáveis.<br>
+        2.2. Cada participante deve se cadastrar com nome completo e telefone/WhatsApp válido.<br>
+        2.3. O participante pode palpitar em quantos jogos desejar, pagando o valor correspondente por cada palpite.</p>
+
+        <h3 style="color:#009739;margin-top:15px;">3. DO VALOR E PAGAMENTO</h3>
+        <p>3.1. Cada palpite tem o valor de <strong>R$ 20,00 (vinte reais)</strong>.<br>
+        3.2. O pagamento deverá ser realizado <strong>antecipadamente</strong> via <strong>PIX</strong>.<br>
+        3.3. O palpite só será validado após a confirmação do pagamento pelo administrador.<br>
+        3.4. Dados do PIX:<br>
+        &nbsp;&nbsp;&nbsp;- <strong>Chave PIX:</strong> 91 985446070<br>
+        &nbsp;&nbsp;&nbsp;- <strong>Beneficiário:</strong> Deigo Dia<br>
+        &nbsp;&nbsp;&nbsp;- <strong>Banco:</strong> PagSeguro<br>
+        &nbsp;&nbsp;&nbsp;- <strong>Cidade:</strong> Santa Barbara - PA</p>
+
+        <h3 style="color:#009739;margin-top:15px;">4. DOS PALPITES</h3>
+        <p>4.1. O participante deve escolher um jogo disponível e informar o placar que acredita.<br>
+        4.2. Cada palpite deve conter o número exato de gols de cada time (ex: Brasil 2 x 0 Sérvia).<br>
+        4.3. <strong>Limite de 3 (três) palpites iguais por jogo/placar.</strong> Caso já existam 3 pessoas com o mesmo palpite, o participante deverá escolher outro resultado.<br>
+        4.4. Após o envio, o palpite fica como "Aguardando Pagamento" até a confirmação do administrador.</p>
+
+        <h3 style="color:#009739;margin-top:15px;">5. DA CONFIRMAÇÃO</h3>
+        <p>5.1. O administrador confirmará o pagamento e poderá aprovar o palpite.<br>
+        5.2. Após a confirmação, o participante receberá uma <strong>notificação</strong> informando que seu palpite está valendo no Bolão.<br>
+        5.3. O administrador pode rejeitar ou excluir palpites a seu critério, em caso de irregularidades.</p>
+
+        <h3 style="color:#009739;margin-top:15px;">6. DA PONTUAÇÃO</h3>
+        <p>6.1. <strong>Acertar o placar exato:</strong> 10 pontos.<br>
+        6.2. <strong>Acertar o vencedor (ou empate) mas não o placar:</strong> 5 pontos.<br>
+        6.3. <strong>Não acertar nada:</strong> 0 pontos.</p>
+
+        <h3 style="color:#009739;margin-top:15px;">7. DOS PRÊMIOS</h3>
+        <p>7.1. O valor arrecadado com as inscrições será distribuído da seguinte forma:<br>
+        &nbsp;&nbsp;&nbsp;- <strong>1º lugar:</strong> 50% do valor total arrecadado<br>
+        &nbsp;&nbsp;&nbsp;- <strong>2º lugar:</strong> 30% do valor total arrecadado<br>
+        &nbsp;&nbsp;&nbsp;- <strong>3º lugar:</strong> 20% do valor total arrecadado<br>
+        7.2. Em caso de empate na pontuação final, o prêmio será dividido igualmente entre os empatados.<br>
+        7.3. O bolão só será válido se houver no mínimo 10 (dez) palpites confirmados no total.</p>
+
+        <h3 style="color:#009739;margin-top:15px;">8. DOS PRAZOS</h3>
+        <p>8.1. Os palpites para cada jogo devem ser enviados <strong>até 1 hora antes do início da partida</strong>.<br>
+        8.2. Após o início do jogo, não serão aceitos novos palpites para aquela partida.<br>
+        8.3. O pagamento deve ser realizado no momento do envio do palpite.</p>
+
+        <h3 style="color:#009739;margin-top:15px;">9. DAS DISPOSIÇÕES GERAIS</h3>
+        <p>9.1. A participação no bolão implica na aceitação total deste regulamento.<br>
+        9.2. Casos omissos serão resolvidos pelo organizador (administrador).<br>
+        9.3. O organizador se reserva o direito de modificar este regulamento a qualquer momento, mediante comunicação prévia aos participantes.<br>
+        9.4. Este bolão tem caráter exclusivamente recreativo, sem vínculo com apostas esportivas oficiais.</p>
+
+        <p style="text-align:center;margin-top:20px;padding:15px;background:#e8f5e9;border-radius:8px;color:#009739;font-weight:bold;">
+          &#9917; Boa sorte a todos os participantes! Que vença o melhor palpite! &#127942;
+        </p>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== TAB ADMIN ========== -->
+  <div id="tab-admin" class="tab-content">
+    <div id="adminLogin" class="admin-login card">
+      <div class="lock-icon">&#128274;</div>
+      <h2>Acesso Administrativo</h2>
+      <input type="password" id="senhaAdmin" placeholder="Digite a senha" onkeypress="if(event.key==='Enter')loginAdmin()">
+      <button class="btn btn-blue" onclick="loginAdmin()" style="width:100%;">Entrar</button>
+      <p class="small-text mt-10">Apenas administradores autorizados</p>
+    </div>
+
+    <div id="adminDashboard" style="display:none;">
+      <div class="card">
+        <div class="admin-header">
+          <h2>&#128202; Painel Administrativo</h2>
+          <button class="btn btn-red btn-sm" onclick="logoutAdmin()">Sair</button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:20px;">
+          <div style="background:#e8f5e9;padding:15px;border-radius:8px;text-align:center;">
+            <div style="font-size:1.8em;font-weight:bold;color:#009739;" id="totalPalpites">0</div>
+            <div class="small-text">Total de Palpites</div>
+          </div>
+          <div style="background:#fff3e0;padding:15px;border-radius:8px;text-align:center;">
+            <div style="font-size:1.8em;font-weight:bold;color:#e67e22;" id="totalPendentes">0</div>
+            <div class="small-text">Aguardando Pagamento</div>
+          </div>
+          <div style="background:#e3f2fd;padding:15px;border-radius:8px;text-align:center;">
+            <div style="font-size:1.8em;font-weight:bold;color:#002776;" id="totalPagos">0</div>
+            <div class="small-text">Pagos / Confirmados</div>
+          </div>
+        </div>
+
+        <div class="filter-bar">
+          <input type="text" id="filtroNome" placeholder="Buscar por nome..." oninput="renderAdminTable()">
+          <select id="filtroStatus" onchange="renderAdminTable()">
+            <option value="todos">Todos</option>
+            <option value="pending">Aguardando Pagamento</option>
+            <option value="paid">Pago</option>
+            <option value="confirmed">Confirmado</option>
+          </select>
+          <select id="filtroJogo" onchange="renderAdminTable()">
+            <option value="todos">Todos os Jogos</option>
+          </select>
+        </div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nome</th>
+                <th>Telefone</th>
+                <th>Jogo</th>
+                <th>Palpite</th>
+                <th>Status</th>
+                <th>Comprovante</th>
+                <th>Ação</th>
+              </tr>
+            </thead>
+            <tbody id="adminTableBody">
+            </tbody>
+          </table>
+        </div>
+        <p id="semResultados" class="text-center small-text mt-10" style="display:none;">Nenhum resultado encontrado.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button class="notification-badge" id="notifBell" onclick="showNotificacoes()">&#128276;</button>
+
+<div class="footer">
+  Bolão Brasil 2027 &copy; Todos os direitos reservados
+</div>
+
+<!-- MODAL NOTIFICAÇÕES -->
+<div class="modal" id="modalNotificacoes">
+  <div class="modal-content">
+    <span class="modal-close" onclick="fecharModal('modalNotificacoes')">&times;</span>
+    <h3>&#128276; Notificações</h3>
+    <div id="listaNotificacoes">
+      <p class="text-center small-text">Nenhuma notificação.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DADOS
+// ============================================================
+const JOGOS = [
+  { id: 1, time1: 'Brasil', time2: 'Sérvia' },
+  { id: 2, time1: 'Brasil', time2: 'Suíça' },
+  { id: 3, time1: 'Brasil', time2: 'Camarões' },
+  { id: 4, time1: 'Brasil', time2: 'Alemanha' },
+  { id: 5, time1: 'Brasil', time2: 'Argentina' },
+  { id: 6, time1: 'Brasil', time2: 'França' },
+  { id: 7, time1: 'Brasil', time2: 'Espanha' },
+  { id: 8, time1: 'Brasil', time2: 'Portugal' },
+  { id: 9, time1: 'Brasil', time2: 'Holanda' },
+  { id: 10, time1: 'Brasil', time2: 'Inglaterra' }
+];
+
+const ADMIN_SENHA = 'DIEGO37';
+const PIX_KEY = '91985446070';
+const PIX_VALOR = 20.00;
+const PIX_BENEFICIARIO = 'Deigo Dia';
+const PIX_BANCO = 'PagSeguro';
+const PIX_CIDADE = 'Santa Barbara';
+
+const STORAGE_KEY = 'bolaobrasil2027';
+
+// ============================================================
+// ESTADO
+// ============================================================
+let state = {
+  palpites: [],
+  notificacoes: [],
+  adminLogado: false
+};
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      state.palpites = parsed.palpites || [];
+      state.notificacoes = parsed.notificacoes || [];
+    }
+  } catch(e) {}
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    palpites: state.palpites,
+    notificacoes: state.notificacoes
+  }));
+}
+
+// ============================================================
+// TOAST NOTIFICATION
+// ============================================================
+function showToast(msg, tipo) {
+  const div = document.createElement('div');
+  div.className = 'toast ' + tipo;
+  div.textContent = msg;
+  document.body.appendChild(div);
+  setTimeout(() => div.classList.add('show'), 50);
+  setTimeout(() => {
+    div.classList.remove('show');
+    setTimeout(() => div.remove(), 400);
+  }, 3500);
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function showTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    const txt = b.textContent.trim();
+    if ((txt.includes('Usuário') && tab === 'usuario') ||
+        (txt.includes('Administrador') && tab === 'admin') ||
+        (txt.includes('Regulamento') && tab === 'regulamento')) {
+      b.classList.add('active');
+    }
+  });
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  if (tab === 'usuario') renderMeusPalpites();
+  if (tab === 'admin' && state.adminLogado) renderAdminTable();
+}
+
+// ============================================================
+// JOGOS SELECT
+// ============================================================
+function carregarJogos() {
+  const sel = document.getElementById('jogoSelect');
+  sel.innerHTML = '<option value="">-- Selecione --</option>';
+  JOGOS.forEach(j => {
+    sel.innerHTML += `<option value="${j.id}">${j.time1} vs ${j.time2}</option>`;
+  });
+  // admin filter
+  const selFiltro = document.getElementById('filtroJogo');
+  selFiltro.innerHTML = '<option value="todos">Todos os Jogos</option>';
+  JOGOS.forEach(j => {
+    selFiltro.innerHTML += `<option value="${j.id}">${j.time1} vs ${j.time2}</option>`;
+  });
+}
+
+function onSelectJogo() {
+  const id = parseInt(document.getElementById('jogoSelect').value);
+  if (!id) {
+    document.getElementById('placarArea').style.display = 'none';
+    document.getElementById('pixArea').style.display = 'none';
+    return;
+  }
+  const jogo = JOGOS.find(j => j.id === id);
+  if (!jogo) return;
+  document.getElementById('time1').textContent = jogo.time1;
+  document.getElementById('time2').textContent = jogo.time2;
+  document.getElementById('placarArea').style.display = 'block';
+  document.getElementById('pixArea').style.display = 'block';
+  gerarQRCode();
+}
+
+// ============================================================
+// PIX QR CODE
+// ============================================================
+function gerarQRCode() {
+  const container = document.getElementById('qrcode');
+  container.innerHTML = '';
+  // Monta payload PIX
+  const payload = montarPixPayload();
+  new QRCode(container, {
+    text: payload,
+    width: 180,
+    height: 180,
+    colorDark: '#002776',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.H
+  });
+}
+
+function montarPixPayload() {
+  // Formato PIX Copia e Cola simplificado
+  // Versão simplificada para gerar QR code funcional
+  const valor = PIX_VALOR.toFixed(2);
+  const nome = PIX_BENEFICIARIO;
+  const cidade = PIX_CIDADE;
+  const chave = PIX_KEY;
+  // Payload formatado
+  const gui = 'br.gov.bcb.pix';
+  const txId = 'BOLAO2027' + Date.now().toString(36).toUpperCase();
+  // Montagem manual simplificada (para QR code real usaríamos lib)
+  const payloadStr = `00020101021226830014${gui}2561pix@pagseguro.com.br5204000053039865406${valor}5802BR5913${nome}6008${cidade}62140510${txId}6304`;
+  // Nota: checksum CRC16 seria necessário para validação real
+  return payloadStr;
+}
+
+function copiarChavePix() {
+  navigator.clipboard.writeText(PIX_KEY).then(() => {
+    showToast('Chave PIX copiada!', 'success');
+  }).catch(() => {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = PIX_KEY;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+    showToast('Chave PIX copiada!', 'success');
+  });
+}
+
+// ============================================================
+// LIMITE DE 3 PALPITES IGUAIS
+// ============================================================
+function contarPalpiteRepetido(jogoId, gols1, gols2) {
+  return state.palpites.filter(p =>
+    p.jogoId === jogoId &&
+    p.gols1 === gols1 &&
+    p.gols2 === gols2 &&
+    (p.status === 'pending' || p.status === 'paid' || p.status === 'confirmed')
+  ).length;
+}
+
+function verificarLimitePalpite() {
+  const jogoId = parseInt(document.getElementById('jogoSelect').value);
+  const gols1 = parseInt(document.getElementById('gols1').value);
+  const gols2 = parseInt(document.getElementById('gols2').value);
+  const aviso = document.getElementById('limiteAviso');
+
+  if (!jogoId || isNaN(gols1) || isNaN(gols2)) {
+    aviso.style.display = 'none';
+    return;
+  }
+
+  const count = contarPalpiteRepetido(jogoId, gols1, gols2);
+  const restante = 3 - count;
+
+  if (restante <= 0) {
+    aviso.style.display = 'block';
+    aviso.style.background = '#fce4e4';
+    aviso.style.color = '#e74c3c';
+    aviso.innerHTML = '&#10060; Limite atingido! Já existem 3 palpites com este placar. Escolha outro resultado.';
+  } else if (restante < 3) {
+    aviso.style.display = 'block';
+    aviso.style.background = '#fff3cd';
+    aviso.style.color = '#856404';
+    aviso.innerHTML = '&#9888; Restam apenas <strong>' + restante + '</strong> vaga(s) com este placar. Garanta já o seu!';
+  } else {
+    aviso.style.display = 'none';
+  }
+}
+
+// ============================================================
+// FORMULÁRIO
+// ============================================================
+function toggleSubmit() {
+  document.getElementById('btnSubmit').disabled = !document.getElementById('confirmPag').checked;
+}
+
+document.getElementById('formPalpite').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const nome = document.getElementById('nomeUser').value.trim();
+  const tel = document.getElementById('telUser').value.trim();
+  const jogoId = parseInt(document.getElementById('jogoSelect').value);
+  const gols1 = parseInt(document.getElementById('gols1').value);
+  const gols2 = parseInt(document.getElementById('gols2').value);
+  const comprovante = document.getElementById('comprovante').value.trim();
+
+  if (!nome || !tel || !jogoId || isNaN(gols1) || isNaN(gols2)) {
+    showToast('Preencha todos os campos obrigatórios!', 'error');
+    return;
+  }
+
+  if (!document.getElementById('confirmPag').checked) {
+    showToast('Confirme o pagamento via PIX!', 'error');
+    return;
+  }
+
+  const jogo = JOGOS.find(j => j.id === jogoId);
+  if (!jogo) return;
+
+  // Verifica limite de 3 palpites iguais
+  const count = contarPalpiteRepetido(jogoId, gols1, gols2);
+  if (count >= 3) {
+    showToast('Limite atingido! Já existem 3 palpites com este placar para este jogo. Escolha outro resultado.', 'error');
+    return;
+  }
+
+  const palpite = {
+    id: Date.now().toString(36) + Math.random().toString(36).substr(2,5),
+    nome,
+    telefone: tel,
+    jogoId,
+    jogo: `${jogo.time1} vs ${jogo.time2}`,
+    gols1,
+    gols2,
+    status: 'pending',
+    comprovante: comprovante || 'N/A',
+    data: new Date().toLocaleString('pt-BR'),
+    notificado: false
+  };
+
+  state.palpites.push(palpite);
+  saveState();
+
+  showToast('Palpite enviado! Aguarde confirmação do pagamento.', 'success');
+  this.reset();
+  document.getElementById('placarArea').style.display = 'none';
+  document.getElementById('pixArea').style.display = 'none';
+  document.getElementById('btnSubmit').disabled = true;
+  renderMeusPalpites();
+  atualizarNotifAdmin();
+});
+
+// ============================================================
+// MEUS PALPITES (USUÁRIO)
+// ============================================================
+function renderMeusPalpites() {
+  const container = document.getElementById('meusPalpites');
+  if (state.palpites.length === 0) {
+    container.innerHTML = '<p class="text-center small-text">Nenhum palpite cadastrado ainda.</p>';
+    return;
+  }
+  let html = '';
+  // Mostra últimos primeiro
+  const reversed = [...state.palpites].reverse();
+  reversed.forEach(p => {
+    const statusClass = p.status === 'pending' ? 'status-pending' : p.status === 'paid' ? 'status-paid' : p.status === 'confirmed' ? 'status-confirmed' : 'status-rejected';
+    const statusText = p.status === 'pending' ? 'Aguardando Pagamento' : p.status === 'paid' ? 'Pago - Aguardando Confirmação' : p.status === 'confirmed' ? '&#9989; Confirmado!' : 'Rejeitado';
+    html += `<div style="background:#f8f9fa;border-radius:8px;padding:12px;margin-bottom:10px;border-left:4px solid ${p.status==='confirmed'?'#009739':p.status==='paid'?'#FFCC29':'#e67e22'}">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <strong>${p.jogo}</strong>
+        <span class="${statusClass}">${statusText}</span>
+      </div>
+      <div style="margin-top:5px;">
+        Palpite: <strong>${p.gols1} x ${p.gols2}</strong> 
+        <span class="small-text">| ${p.data}</span>
+      </div>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+// ============================================================
+// ADMIN
+// ============================================================
+function loginAdmin() {
+  const senha = document.getElementById('senhaAdmin').value;
+  if (senha === ADMIN_SENHA) {
+    state.adminLogado = true;
+    document.getElementById('adminLogin').style.display = 'none';
+    document.getElementById('adminDashboard').style.display = 'block';
+    renderAdminTable();
+    showToast('Bem-vindo, Administrador!', 'success');
+  } else {
+    showToast('Senha incorreta!', 'error');
+  }
+}
+
+function logoutAdmin() {
+  state.adminLogado = false;
+  document.getElementById('adminLogin').style.display = 'block';
+  document.getElementById('adminDashboard').style.display = 'none';
+  document.getElementById('senhaAdmin').value = '';
+}
+
+function renderAdminTable() {
+  if (!state.adminLogado) return;
+
+  const filtroNome = document.getElementById('filtroNome').value.toLowerCase();
+  const filtroStatus = document.getElementById('filtroStatus').value;
+  const filtroJogo = document.getElementById('filtroJogo').value;
+
+  let filtered = [...state.palpites];
+
+  if (filtroNome) filtered = filtered.filter(p => p.nome.toLowerCase().includes(filtroNome));
+  if (filtroStatus !== 'todos') filtered = filtered.filter(p => p.status === filtroStatus);
+  if (filtroJogo !== 'todos') filtered = filtered.filter(p => p.jogoId === parseInt(filtroJogo));
+
+  // Stats
+  document.getElementById('totalPalpites').textContent = state.palpites.length;
+  document.getElementById('totalPendentes').textContent = state.palpites.filter(p => p.status === 'pending').length;
+  document.getElementById('totalPagos').textContent = state.palpites.filter(p => p.status === 'paid' || p.status === 'confirmed').length;
+
+  const tbody = document.getElementById('adminTableBody');
+  const semRes = document.getElementById('semResultados');
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    semRes.style.display = 'block';
+    return;
+  }
+  semRes.style.display = 'none';
+
+  tbody.innerHTML = filtered.map((p, idx) => {
+    const statusClass = p.status === 'pending' ? 'status-pending' : p.status === 'paid' ? 'status-paid' : p.status === 'confirmed' ? 'status-confirmed' : 'status-rejected';
+    const statusText = p.status === 'pending' ? 'Aguardando Pagamento' : p.status === 'paid' ? 'Pago' : p.status === 'confirmed' ? 'Confirmado' : 'Rejeitado';
+
+    let acoes = '';
+    if (p.status === 'pending') {
+      acoes = `<button class="btn btn-green btn-sm" onclick="confirmarPagamento('${p.id}')">&#10004; Pago</button>`;
+    } else if (p.status === 'paid') {
+      acoes = `<button class="btn btn-yellow btn-sm" onclick="confirmarPalpite('${p.id}')">&#9989; Confirmar</button>
+               <button class="btn btn-red btn-sm" onclick="rejeitarPalpite('${p.id}')">&#10060; Rejeitar</button>`;
+    } else if (p.status === 'confirmed') {
+      acoes = `<span style="color:#009739;font-weight:bold;">&#9989; OK</span>`;
+    } else {
+      acoes = `<span style="color:#e74c3c;">Rejeitado</span>`;
+    }
+
+    const telLimpo = p.telefone.replace(/\D/g,'');
+    const zapLink = telLimpo ? `<a href="https://wa.me/55${telLimpo}?text=${encodeURIComponent('Olá ' + p.nome + '! Seu palpite ' + p.jogo + ' (' + p.gols1 + 'x' + p.gols2 + ') está confirmado e VALENDO NO BOLÃO BRASIL 2027! Boa sorte! 🏆')}" target="_blank" title="Enviar WhatsApp" style="text-decoration:none;"><button class="btn btn-green btn-sm" style="background:#25D366;">&#128172; WhatsApp</button></a>` : '';
+
+    const delBtn = `<button class="btn btn-red btn-sm" onclick="deletarPalpite('${p.id}')" title="Excluir palpite" style="background:#c0392b;margin-left:4px;">&#128465;</button>`;
+
+    return `<tr>
+      <td>${idx+1}</td>
+      <td><strong>${p.nome}</strong></td>
+      <td>${p.telefone}</td>
+      <td>${p.jogo}</td>
+      <td><strong>${p.gols1} x ${p.gols2}</strong></td>
+      <td class="${statusClass}">${statusText}</td>
+      <td class="small-text">${p.comprovante}</td>
+      <td style="white-space:nowrap;">${acoes} ${zapLink} ${delBtn}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ============================================================
+// ADMIN ACTIONS
+// ============================================================
+function confirmarPagamento(id) {
+  const p = state.palpites.find(x => x.id === id);
+  if (!p) return;
+  p.status = 'paid';
+  saveState();
+  renderAdminTable();
+  showToast(`Pagamento de ${p.nome} confirmado!`, 'success');
+  addNotificacao(`Pagamento confirmado: ${p.nome} - ${p.jogo} (${p.gols1}x${p.gols2})`, 'info');
+  // Pergunta se quer notificar via WhatsApp
+  if (confirm(`Pagamento confirmado! Deseja enviar WhatsApp para ${p.nome} avisando que o pagamento foi recebido com sucesso?`)) {
+    const tel = p.telefone.replace(/\D/g,'');
+    if (tel) {
+      const msg = `Olá ${p.nome}! Seu pagamento de R$ 20,00 via PIX foi CONFIRMADO com sucesso! Seu palpite ${p.jogo} (${p.gols1}x${p.gols2}) já está registrado no Bolão Brasil 2027. Aguardando confirmação final. Obrigado! 🏆`;
+      window.open(`https://wa.me/55${tel}?text=${encodeURIComponent(msg)}`, '_blank');
+      showToast(`WhatsApp aberto para ${p.nome}!`, 'success');
+    }
+  }
+}
+
+function confirmarPalpite(id) {
+  const p = state.palpites.find(x => x.id === id);
+  if (!p) return;
+  p.status = 'confirmed';
+  saveState();
+  renderAdminTable();
+  showToast(`Palpite de ${p.nome} confirmado e VALENDO NO BOLÃO!`, 'success');
+  addNotificacao(`Palpite CONFIRMADO: ${p.nome} - ${p.jogo} (${p.gols1}x${p.gols2}) - ESTÁ VALENDO NO BOLÃO!`, 'success');
+  atualizarNotifAdmin();
+  // Pergunta se quer notificar via WhatsApp
+  if (confirm(`Palpite confirmado! Deseja enviar WhatsApp para ${p.nome} avisando que ele está PARTICIPANDO DO BOLÃO?`)) {
+    const tel = p.telefone.replace(/\D/g,'');
+    if (tel) {
+      const msg = `🎉 PARABÉNS ${p.nome}! 🎉 Seu palpite ${p.jogo} (${p.gols1}x${p.gols2}) foi CONFIRMADO e VOCÊ ESTÁ PARTICIPANDO DO BOLÃO BRASIL 2027! Seu pagamento foi recebido com sucesso. Boa sorte! 🏆⚽`;
+      window.open(`https://wa.me/55${tel}?text=${encodeURIComponent(msg)}`, '_blank');
+      showToast(`WhatsApp aberto para ${p.nome}!`, 'success');
+    }
+  }
+}
+
+function rejeitarPalpite(id) {
+  if (!confirm('Tem certeza que deseja rejeitar este palpite?')) return;
+  const p = state.palpites.find(x => x.id === id);
+  if (!p) return;
+  p.status = 'rejected';
+  saveState();
+  renderAdminTable();
+  showToast(`Palpite de ${p.nome} rejeitado.`, 'warning');
+  addNotificacao(`Palpite rejeitado: ${p.nome} - ${p.jogo}`, 'warning');
+}
+
+function deletarPalpite(id) {
+  const p = state.palpites.find(x => x.id === id);
+  if (!p) return;
+  if (!confirm(`Tem certeza que deseja EXCLUIR o palpite de ${p.nome} (${p.jogo} - ${p.gols1}x${p.gols2})? Esta ação não pode ser desfeita.`)) return;
+  state.palpites = state.palpites.filter(x => x.id !== id);
+  saveState();
+  renderAdminTable();
+  showToast(`Palpite de ${p.nome} excluído permanentemente!`, 'warning');
+  addNotificacao(`Palpite EXCLUÍDO: ${p.nome} - ${p.jogo} (${p.gols1}x${p.gols2})`, 'warning');
+}
+
+// ============================================================
+// NOTIFICAÇÕES
+// ============================================================
+function addNotificacao(msg, tipo) {
+  state.notificacoes.unshift({
+    id: Date.now(),
+    msg,
+    tipo: tipo || 'info',
+    data: new Date().toLocaleString('pt-BR')
+  });
+  if (state.notificacoes.length > 50) state.notificacoes.pop();
+  saveState();
+  atualizarNotifAdmin();
+}
+
+function notificarUsuario(id) {
+  const p = state.palpites.find(x => x.id === id);
+  if (!p) return;
+  p.notificado = true;
+  saveState();
+  renderAdminTable();
+  const tel = p.telefone.replace(/\D/g,'');
+  if (tel) {
+    const msg = `🎉 PARABÉNS ${p.nome}! 🎉 Seu palpite ${p.jogo} (${p.gols1}x${p.gols2}) está CONFIRMADO e VOCÊ ESTÁ PARTICIPANDO DO BOLÃO BRASIL 2027! Seu pagamento via PIX foi recebido com sucesso. Boa sorte! 🏆⚽`;
+    window.open(`https://wa.me/55${tel}?text=${encodeURIComponent(msg)}`, '_blank');
+  }
+  addNotificacao(`WhatsApp enviado para ${p.nome}: Palpite confirmado e participando do Bolão Brasil 2027!`, 'success');
+  showToast(`Notificação via WhatsApp enviada para ${p.nome}!`, 'success');
+}
+
+function atualizarNotifAdmin() {
+  const bell = document.getElementById('notifBell');
+  const naoLidas = state.notificacoes.length;
+  if (naoLidas > 0) {
+    bell.classList.add('show');
+    bell.textContent = naoLidas > 9 ? '9+' : naoLidas;
+  } else {
+    bell.classList.remove('show');
+  }
+}
+
+function showNotificacoes() {
+  const container = document.getElementById('listaNotificacoes');
+  if (state.notificacoes.length === 0) {
+    container.innerHTML = '<p class="text-center small-text">Nenhuma notificação.</p>';
+  } else {
+    container.innerHTML = state.notificacoes.map(n => {
+      const cor = n.tipo === 'success' ? '#009739' : n.tipo === 'warning' ? '#e67e22' : '#002776';
+      return `<div style="padding:10px;border-left:3px solid ${cor};margin-bottom:8px;background:#f8f9fa;border-radius:4px;">
+        <div style="font-size:.9em;">${n.msg}</div>
+        <div class="small-text" style="margin-top:3px;">${n.data}</div>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('modalNotificacoes').classList.add('show');
+}
+
+function fecharModal(id) {
+  document.getElementById(id).classList.remove('show');
+}
+
+// Fechar modal clicando fora
+document.querySelectorAll('.modal').forEach(m => {
+  m.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('show');
+  });
+});
+
+// ============================================================
+// INIT
+// ============================================================
+loadState();
+carregarJogos();
+renderMeusPalpites();
+atualizarNotifAdmin();
+
+// Auto-refresh admin table se logado
+setInterval(() => {
+  if (state.adminLogado) renderAdminTable();
+}, 5000);
+
+console.log('Bolão Brasil 2027 carregado!');
+</script>
+</body>
+</html>
