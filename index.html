@@ -63,7 +63,8 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:20px}
 <script>
 const firebaseConfig={apiKey:"AIzaSyBYO2ZMOYnBdrGyvmvnUvUZfYJ_OnvwU08",authDomain:"bolao-brasil-2027.firebaseapp.com",databaseURL:"https://bolao-brasil-2027-default-rtdb.firebaseio.com",projectId:"bolao-brasil-2027",storageBucket:"bolao-brasil-2027.firebasestorage.app",messagingSenderId:"923444019045",appId:"1:923444019045:web:9b83314572c5787976ab8c"};
 const ROOT='copaFeminina2027', LEGACY_EVENT='brasilxargentina2027';
-const PIX_API_BASE='https://SEU-BACKEND-URL-AQUI'; // Após publicar o backend, substitua pela URL HTTPS dele.\nlet db=null, partidas={}, apostas={}, configuracao={valor:20,pixKey:'',pixTitular:'',pixCidade:''}, partidaAtualId='', adminAutenticado=false, adminSenha='DIEGO37', ultimoPalpiteId='', statusTimer=null;
+const PIX_API_BASE='https://SEU-BACKEND-URL-AQUI'; // Após publicar o backend, substitua pela URL HTTPS dele.
+let db=null, partidas={}, apostas={}, configuracao={valor:20,pixKey:'',pixTitular:'',pixCidade:''}, partidaAtualId='', adminAutenticado=false, adminSenha='DIEGO37', ultimoPalpiteId='', statusTimer=null;
 const $=id=>document.getElementById(id);
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function dinheiro(v){return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});}
