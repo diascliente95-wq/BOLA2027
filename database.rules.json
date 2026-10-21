@@ -1,0 +1,22 @@
+{
+  "rules": {
+    ".read": true,
+    ".write": false,
+    "copaFeminina2027": {
+      "partidas": {
+        "$partidaId": {
+          ".write": "auth != null && auth.token.email === 'diascliente95@gmail.com'"
+        }
+      },
+      "config": {
+        ".write": "auth != null && auth.token.email === 'diascliente95@gmail.com'"
+      },
+      "palpites": {
+        "$palpiteId": {
+          ".write": "(auth != null && auth.token.email === 'diascliente95@gmail.com') || (!data.exists() && newData.hasChildren(['partidaId','nome','whatsapp','golsCasa','golsVisitante','valor','confirmado','statusPagamento','provedor','criadoEm']) && newData.child('confirmado').val() === false && newData.child('statusPagamento').val() === 'pendente' && newData.child('valor').val() === 10 && root.child('copaFeminina2027/partidas').child(newData.child('partidaId').val()).child('status').val() === 'aberto')",
+          ".validate": "newData.hasChildren(['partidaId','nome','whatsapp','golsCasa','golsVisitante','valor','confirmado','statusPagamento','provedor','criadoEm'])"
+        }
+      }
+    }
+  }
+}
