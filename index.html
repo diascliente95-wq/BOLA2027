@@ -91,7 +91,7 @@ function entrarAdmin(){if($('adminSenha').value!==adminSenha){$('loginStatus').t
 $('entrarAdmin').addEventListener('click',entrarAdmin);$('adminSenha').addEventListener('keydown',e=>{if(e.key==='Enter')entrarAdmin();});$('sairAdmin').addEventListener('click',()=>{adminAutenticado=false;$('adminPanel').classList.add('hidden');$('adminLogin').classList.remove('hidden');$('adminSenha').value='';});
 $('criarPartida').addEventListener('click',criarPartida);
 $('salvarConfig').addEventListener('click',()=>{if(!adminAutenticado)return;const novo=$('adminSenhaNova').value;if(novo&&novo.length<8)return toast('Use pelo menos 8 caracteres.');const config={pixKey:$('adminPixKey').value.trim(),pixTitular:$('adminPixTitular').value.trim(),pixCidade:$('adminPixCidade').value.trim(),valor:configuracao.valor||20};db.ref(ROOT+'/config').update(config).then(()=>{if(novo){adminSenha=novo;$('adminSenhaNova').value='';$('configStatus').textContent='Configuração salva. A nova senha vale apenas nesta sessão; configure autenticação real antes de disponibilizar publicamente.';}else $('configStatus').textContent='Configuração salva.';}).catch(e=>toast(e.message));});
-$('exportarCsv').addEventListener('click',exportarCsv);
+
 function iniciar(){
  try{if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);db=firebase.database();
  db.ref(ROOT+'/partidas').on('value',s=>{partidas=s.val()||{};atualizarSelect();selecionarPartida();renderPartidas();renderRanking();});
