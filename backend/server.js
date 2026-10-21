@@ -81,7 +81,7 @@ app.get('/api/pix/status/:id',async(req,res)=>{
 app.post('/api/efi/webhook/:secret/pix',async(req,res)=>{
   try{
     const expected=required('EFI_WEBHOOK_SECRET');
-    if(!crypto.timingSafeEqual(Buffer.from(String(req.params.secret)),Buffer.from(expected)))return res.sendStatus(401);
+    const received=Buffer.from(String(req.params.secret)),wanted=Buffer.from(expected);if(received.length!==wanted.length||!crypto.timingSafeEqual(received,wanted))return res.sendStatus(401);
     if(!db||!efi)return res.sendStatus(503);
     const pix=Array.isArray(req.body?.pix)?req.body.pix:[];
     for(const notification of pix){
@@ -94,6 +94,7 @@ app.post('/api/efi/webhook/:secret/pix',async(req,res)=>{
       const charge=await efi.pixDetailCharge({txid});
       if(charge.status!=='CONCLUIDA')continue;
       const expectedAmount=amountString(mapping.valor);
+      if(amountString(charge.valor?.original)!==expectedAmount)continue;
       const paid=Array.isArray(charge.pix)?charge.pix.reduce((sum,x)=>sum+Number(x.valor||0),0):0;
       if(paid+0.00001<Number(expectedAmount))continue;
       const updates={};
