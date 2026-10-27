@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#071b14">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bolão 2027">
 <title>Bolão Copa Feminina 2027 | Diego Dias</title>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
@@ -145,5 +150,31 @@ $('salvarConfig').addEventListener('click',()=>{if(!adminAutenticado)return;cons
 function iniciar(){try{if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);db=firebase.database();auth=firebase.auth();auth.onAuthStateChanged(user=>{const autorizado=!!user&&String(user.email||'').toLowerCase()==='diascliente95@gmail.com';adminAutenticado=autorizado;$('adminLogin').classList.toggle('hidden',autorizado);$('adminPanel').classList.toggle('hidden',!autorizado);if(autorizado){$('loginStatus').textContent='';renderAdminApostas();renderPartidas();}else if(user){auth.signOut();$('loginStatus').textContent='Conta não autorizada.';}});db.ref(ROOT+'/partidas').on('value',s=>{partidas=s.val()||{};atualizarSelect();selecionarPartida();renderPartidas();renderRanking();});db.ref(ROOT+'/palpites').on('value',s=>{apostas=s.val()||{};renderRanking();renderAdminApostas();});db.ref(ROOT+'/config').on('value',s=>{configuracao={...configuracao,...(s.val()||{})};$('valorDisplay').textContent=dinheiro(configuracao.valor);if($('adminPixKey'))$('adminPixKey').value=configuracao.pixKey||'';if($('adminPixTitular'))$('adminPixTitular').value=configuracao.pixTitular||'';if($('adminPixCidade'))$('adminPixCidade').value=configuracao.pixCidade||'';if($('adminValorPadrao'))$('adminValorPadrao').value='10';});db.ref(ROOT+'/partidas').once('value').then(s=>{if(!s.exists())db.ref(ROOT+'/partidas/'+LEGACY_EVENT).set({timeCasa:'Brasil',timeVisitante:'Argentina',status:'aberto',valor:10,observacao:'Partida exemplo legado; substitua pelos confrontos do torneio.'});});}catch(e){console.error(e);$('formStatus').textContent='Erro ao iniciar Firebase. Verifique conexão e regras do banco.';}}
 iniciar();
 </script>
+
+<style>
+#instalarAppBtn{position:fixed;right:14px;bottom:14px;z-index:9999;border:1px solid #ffd166;background:#16d47b;color:#062116;font-weight:900;padding:13px 16px;border-radius:999px;box-shadow:0 6px 22px #0008;display:none}
+#instalarAppBtn:focus{outline:3px solid #fff;outline-offset:3px}
+</style>
+<button id="instalarAppBtn" type="button">📲 Instalar aplicativo</button>
+<script>
+(function(){
+ let deferredPrompt=null;
+ const btn=document.getElementById('instalarAppBtn');
+ if(!btn)return;
+ window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferredPrompt=e;btn.style.display='block';});
+ btn.addEventListener('click',async function(){
+   if(deferredPrompt){
+     deferredPrompt.prompt();
+     try{await deferredPrompt.userChoice;}catch(e){}
+     deferredPrompt=null;btn.style.display='none';
+   }else{
+     alert('Para adicionar à tela inicial: no menu do navegador (⋮), escolha “Instalar aplicativo” ou “Adicionar à tela inicial”.');
+   }
+ });
+ window.addEventListener('appinstalled',function(){btn.style.display='none';});
+ if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(err){console.warn('Service worker indisponível',err);});});}
+})();
+</script>
+
 </body>
 </html>
