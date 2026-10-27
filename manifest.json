@@ -1,0 +1,21 @@
+{
+  "id": "/",
+  "name": "Bolão Copa Feminina 2027 | Diego Dias",
+  "short_name": "Bolão 2027",
+  "description": "Palpites e acompanhamento do Bolão Copa Feminina 2027.",
+  "lang": "pt-BR",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#071b14",
+  "theme_color": "#071b14",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
